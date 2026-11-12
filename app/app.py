@@ -1,20 +1,43 @@
 from flask import Flask ,request, jsonify
 from pymongo import MongoClient
 from datetime import datetime
+from dotenv import load_dotenv
 import os
+
+load_dotenv()
+
 
 app = Flask(__name__)
 
-MONGOOB_URI = os.environ.get(
-    "MONGOOB_URI",
-    "mongodb://localhost:27017/"
-)
+# MONGOOB_URI = os.environ.get(
+#     "MONGOOB_URI",
+#     "mongodb://localhost:27017/"
+# )
 
-client = MongoClient(MONGOOB_URI)
+
+MONGODB_URI = os.environ.get("MONGODB_URI")
+
+
+client = MongoClient(
+    MONGODB_URI,
+    serverSelectionTimeoutMS=5000
+    
+    )
 
 #database and collection
 db = client.flask_db
-colection =db.data
+collection =db.data
+
+
+# test DATABASER MONGOdb
+try:
+    client.admin.command("ping")
+    print("MOongoDb is connected successfully!")
+except Exception as e :
+    print("mongoDB connection failed")
+
+
+
 
 
 #home route
@@ -27,21 +50,25 @@ def index():
 
 # get and post data
 
-app.route("/data",method=["GET","POST"])
+@app.route("/data", methods=["GET", "POST"])
 def data():
+
     if request.method == "POST":
-        data  = request.get_json()
 
-        if not data :
-            return jsonify({"error":"JSON data is required"}),400
+        data = request.get_json()
 
-        collection.insert_one(data) 
-        return jsonify({"status":"data inserted"}),201
+        if not data:
+            return jsonify({"error": "JSON data is required"}), 400
 
-    elif request.method =="GET":
-        data = list (colection.find({},{"_id":0}))
-        return jsonify(data),200
+        collection.insert_one(data)
 
+        return jsonify({"status": "Data inserted"}), 201
+
+    elif request.method == "GET":
+
+        records = list(collection.find({}, {"_id": 0}))
+
+        return jsonify(records), 200
 
 # RUN APPLICATION
 
