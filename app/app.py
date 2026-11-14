@@ -24,6 +24,16 @@ client = MongoClient(
     
     )
 
+
+# MONGODB_URI = os.environ.get(
+#     "MONGODB_URI",
+#     "mongodb://admin:ApnaStrongPassword123@mongodb:27017/flask_db?authSource=admin"
+# )
+
+# client = MongoClient(
+#     MONGODB_URI,
+#     serverSelectionTimeoutMS=5000
+# )
 #database and collection
 db = client.flask_db
 collection =db.data
